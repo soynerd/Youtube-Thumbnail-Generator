@@ -15,12 +15,11 @@ export function LoadingOverlay({ loading }: { loading: boolean }) {
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  // rotate messages every 2s
   useEffect(() => {
     if (!loading) return;
     const msgInterval = setInterval(() => {
       setIndex((prev) => (prev + 1) % messages.length);
-    }, 2500);
+    }, 4000);
     return () => clearInterval(msgInterval);
   }, [loading]);
 
