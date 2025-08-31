@@ -36,6 +36,11 @@ import {
   BookOpen,
   Cpu,
   Loader2,
+  Smartphone,
+  Gamepad2,
+  Globe2,
+  Utensils,
+  Mic,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -53,6 +58,11 @@ const DOMAIN_OPTIONS: Domain[] = [
   { label: "Anime", icon: <Sparkles className="size-4" /> },
   { label: "Information", icon: <BookOpen className="size-4" /> },
   { label: "Tech", icon: <Cpu className="size-4" /> },
+  { label: "Gaming", icon: <Gamepad2 className="size-4" /> },
+  { label: "Travel", icon: <Globe2 className="size-4" /> },
+  { label: "Food", icon: <Utensils className="size-4" /> },
+  { label: "Podcasts", icon: <Mic className="size-4" /> },
+  { label: "Shorts", icon: <Smartphone className="size-4" /> },
 ];
 
 const STYLE_OPTIONS = [
@@ -61,6 +71,15 @@ const STYLE_OPTIONS = [
   "Ultra-Realistic",
   "Cartoonish",
   "Futuristic",
+  "Minimalist",
+  "Abstract",
+  "Watercolor",
+  "Oil Painting",
+  "Sketch",
+  "3D Render",
+  "Animation",
+  "Photorealistic",
+  "Neon Glow",
 ];
 
 export function GeneratorUI() {
@@ -157,7 +176,7 @@ export function GeneratorUI() {
     setTimeout(() => {
       setWait(false);
       setFollowUpOpen(true);
-    }, 1000);
+    }, 300);
     // Mock LLM suggestions here (replace with API later)
     // setSuggestions([
     //   "Make it more vibrant with neon colors",
@@ -212,13 +231,20 @@ export function GeneratorUI() {
       // Set the state with the correctly formatted array of strings
       setImages(imageUrls);
       window.scrollBy({
-        top: window.innerHeight * 0.01, // 1vh
+        top: window.innerHeight * 1, // 1vh
         behavior: "smooth",
       });
     } catch (err) {
       console.error("Generation failed", err);
     } finally {
       setLoading(false);
+
+      setDomains([]);
+      setStyles([]);
+      setCustomStyle("");
+      setSuggestions([]);
+      setSelectedSuggestions([]);
+
       window.scrollBy({
         top: window.innerHeight * 1, // 1vh
         behavior: "smooth",
@@ -405,7 +431,7 @@ export function GeneratorUI() {
                     <Pencil className="size-4" />
                   </IconButton>
                   <IconButton
-                    tooltip="Copy link"
+                    tooltip="Copy To Clipboard"
                     onClick={() => copyToClipboard(src)}
                   >
                     <Clipboard className="size-4" />
@@ -499,7 +525,7 @@ export function GeneratorUI() {
               className="bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-lg shadow hover:scale-105 transition"
               onClick={openFollowUp}
             >
-              Generate
+              Next
             </Button>
           </DialogFooter>
         </DialogContent>
