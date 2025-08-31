@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const messages = [
   "Warming up the AI engines…",
-  "Sketching the first strokes…",
-  "Adding creative sparkles…",
-  "Blending styles with magic…",
+  "Want Chat History? Buy a plan...",
+  "You can use Regenerate to use the Image as reference...",
+  "This project was made in less than 2 days.",
   "Polishing details…",
   "Almost done, hang tight!",
 ];
@@ -20,7 +20,7 @@ export function LoadingOverlay({ loading }: { loading: boolean }) {
     if (!loading) return;
     const msgInterval = setInterval(() => {
       setIndex((prev) => (prev + 1) % messages.length);
-    }, 500);
+    }, 2500);
     return () => clearInterval(msgInterval);
   }, [loading]);
 
@@ -30,7 +30,7 @@ export function LoadingOverlay({ loading }: { loading: boolean }) {
     setProgress(0);
     const interval = setInterval(() => {
       setProgress((p) => (p < 95 ? p + 2 : p)); // stop at 95% until complete
-    }, 3000);
+    }, 800);
     return () => clearInterval(interval);
   }, [loading]);
 

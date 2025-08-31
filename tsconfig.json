@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/image-generation/route.js", "app/api/ai-suggestion/route.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/image-generation/route.js", "app/api/ai-suggestion/route.js", "app/api/logout"],
   "exclude": ["node_modules"]
 }

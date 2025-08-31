@@ -219,10 +219,22 @@ export function GeneratorUI() {
       console.error("Generation failed", err);
     } finally {
       setLoading(false);
+      window.scrollBy({
+        top: window.innerHeight * 1, // 1vh
+        behavior: "smooth",
+      });
     }
   }
-  function copyToClipboard(text: string) {
-    navigator.clipboard?.writeText(text);
+  async function copyToClipboard(url: string) {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({ [blob.type]: blob }),
+      ]);
+    } catch (err) {
+      console.error("Failed to copy image: ", err);
+    }
   }
 
   function downloadSelected() {
@@ -360,7 +372,7 @@ export function GeneratorUI() {
                 onCheckedChange={(v) =>
                   setSelected((s) => ({ ...s, [src]: !!v }))
                 }
-                className="absolute left-3 top-3 z-10 bg-background/90 rounded-sm"
+                className="absolute left-3 top-3 z-10 bg-background/90 rounded-sm h-5 w-5"
                 aria-label={`Select image ${i + 1}`}
               />
               <Image
@@ -388,7 +400,7 @@ export function GeneratorUI() {
                   </IconButton>
                   <IconButton
                     tooltip="Edit / Follow-up"
-                    onClick={() => alert("Open refine dialog...")}
+                    onClick={() => alert("Paid Plan Sir 😁")}
                   >
                     <Pencil className="size-4" />
                   </IconButton>
@@ -598,7 +610,7 @@ function IconButton({
       <TooltipTrigger asChild>
         <button
           onClick={onClick}
-          className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-background/80 border shadow-sm backdrop-blur hover:bg-background transition"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-background/80 border shadow-sm backdrop-blur hover:bg-background transition cursor-pointer"
           aria-label={tooltip}
         >
           {children}
