@@ -39,8 +39,8 @@ const imageData: VideoData[] = [
   {
     i: 5,
     loc: "./showImages/pic5.png",
-    channelName: "Cooking with Chai",
-    videoTitle: "Easy Recipe Kadhayi Panner",
+    channelName: "Hitesh Choudhary",
+    videoTitle: "New Course Launch",
   },
   {
     i: 6,

@@ -9,6 +9,8 @@ const sysPrompt = `
 You are an intellegent agent specialize in writing better prompt and its handling on image generation.
 The user will give you a prompt for image generation for youtube video, you have to give prompt for making a thubnail of video.
 Enhace it, and make it more detailed so that the model can generate a better image.
+Always use the image provided by the user.
+If user ask thumbnail for Shorts then generate 2-3 prompt specifying the image generation model to strictly generate only vertical portrait images for shorts, irrespective of the dimensionof user image. Mention: Vertical portrait orientation.
 Output Rules:
 Strictly return array of six modified prompt only.
 Use Double quotation for all string, and inside a string if you want to highlite a heading use single quotation.
@@ -67,10 +69,23 @@ export async function POST(request) {
       prompts = JSON.parse(raw); // Expecting array of strings
     } catch (err) {
       console.error("❌ Failed to parse GPT output:", raw);
-      return NextResponse.json(
-        { message: "Invalid GPT output", raw },
-        { status: 500 }
-      );
+      try {
+        const queryResponse2 = await client.responses.create({
+          model: "gpt-4.1",
+          input: [
+            { role: "system", content: sysPrompt },
+            { role: "developer", content: JSON.stringify(developerContent) },
+            { role: "user", content: prompt },
+          ],
+        });
+        const raw2 = queryResponse2.output_text.trim();
+        prompts = JSON.parse(raw);
+      } catch {
+        return NextResponse.json(
+          { message: "Invalid GPT output", raw },
+          { status: 500 }
+        );
+      }
     }
 
     // Step 2: Generate images with Gemini
