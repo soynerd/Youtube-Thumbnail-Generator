@@ -1,6 +1,8 @@
+// components/AuthModal.tsx
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -13,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export function AuthModal({
   open,
@@ -26,20 +29,93 @@ export function AuthModal({
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const router = useRouter();
 
+  const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [signUpData, setSignUpData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if (open) {
       setTab(initialTab ?? "signin");
     } else {
-      setTab("signin");
+      setSignInData({ email: "", password: "" });
+      setSignUpData({ name: "", email: "", password: "" });
+      setError(null);
     }
   }, [open, initialTab]);
 
-  function completeAuth() {
-    document.cookie = "tf_auth=true; Max-Age=2592000; path=/";
-    onOpenChange(false);
-    router.push("/generate");
-    router.refresh();
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    form: "signin" | "signup"
+  ) => {
+    const { id, value } = e.target;
+    if (form === "signin") {
+      setSignInData((prev) => ({ ...prev, [id]: value }));
+    } else {
+      const fieldName = id.replace("2", "");
+      setSignUpData((prev) => ({ ...prev, [fieldName]: value }));
+    }
+  };
+
+  const handleSignIn = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signInData),
+        credentials: "include", // FIX: include cookies
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to sign in.");
+      }
+
+      onOpenChange(false);
+      router.push("/generate");
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signUpData),
+        credentials: "include", // FIX: include cookies
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create account.");
+      }
+
+      onOpenChange(false);
+      router.push("/generate");
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,9 +132,13 @@ export function AuthModal({
           </DialogDescription>
         </DialogHeader>
 
+        {/* rest of your component unchanged */}
         <Tabs
           value={tab}
-          onValueChange={(v) => setTab(v as any)}
+          onValueChange={(v) => {
+            setTab(v as any);
+            setError(null); // Clear errors when switching tabs
+          }}
           className="w-full mt-4"
         >
           <TabsList className="grid grid-cols-2 rounded-xl bg-muted p-1">
@@ -76,9 +156,9 @@ export function AuthModal({
             </TabsTrigger>
           </TabsList>
 
-          {/* --- Sign In --- */}
+          {/* --- Sign In Form --- */}
           <TabsContent value="signin" className="mt-6">
-            <div className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -86,6 +166,9 @@ export function AuthModal({
                   type="email"
                   placeholder="you@example.com"
                   className="rounded-xl"
+                  value={signInData.email}
+                  onChange={(e) => handleInputChange(e, "signin")}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -95,26 +178,38 @@ export function AuthModal({
                   type="password"
                   placeholder="••••••••"
                   className="rounded-xl"
+                  value={signInData.password}
+                  onChange={(e) => handleInputChange(e, "signin")}
+                  required
                 />
               </div>
+
+              {/* --- NEW: Error Display --- */}
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
               <Button
-                onClick={completeAuth}
+                type="submit"
+                disabled={isLoading}
                 className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 text-white font-medium py-2 hover:scale-[1.02] transition"
               >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Continue
               </Button>
-            </div>
+            </form>
           </TabsContent>
 
-          {/* --- Sign Up --- */}
+          {/* --- Sign Up Form --- */}
           <TabsContent value="signup" className="mt-6">
-            <div className="space-y-4">
+            <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
                   placeholder="Your name"
                   className="rounded-xl"
+                  value={signUpData.name}
+                  onChange={(e) => handleInputChange(e, "signup")}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -124,6 +219,9 @@ export function AuthModal({
                   type="email"
                   placeholder="you@example.com"
                   className="rounded-xl"
+                  value={signUpData.email}
+                  onChange={(e) => handleInputChange(e, "signup")}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -131,21 +229,29 @@ export function AuthModal({
                 <Input
                   id="password2"
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min. 8 characters)"
                   className="rounded-xl"
+                  value={signUpData.password}
+                  onChange={(e) => handleInputChange(e, "signup")}
+                  required
                 />
               </div>
+
+              {/* --- NEW: Error Display --- */}
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
               <Button
-                onClick={completeAuth}
+                type="submit"
+                disabled={isLoading}
                 className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 text-white font-medium py-2 hover:scale-[1.02] transition"
               >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create Account
               </Button>
-            </div>
+            </form>
           </TabsContent>
         </Tabs>
 
-        {/* Divider + Social Login Stub */}
         <div className="flex items-center gap-2 my-6">
           <div className="flex-1 h-px bg-muted"></div>
           <span className="text-xs text-muted-foreground">OR</span>
@@ -154,6 +260,7 @@ export function AuthModal({
         <Button
           variant="outline"
           className="w-full rounded-xl hover:scale-[1.02] transition"
+          disabled // You can enable this when you implement OAuth
         >
           Continue with Google
         </Button>

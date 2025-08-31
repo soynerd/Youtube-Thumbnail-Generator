@@ -15,9 +15,16 @@ export function SiteNav({ isAuthed }: { isAuthed: boolean }) {
   const [authed, setAuthed] = useState(isAuthed);
 
   useEffect(() => {
-    // keep client in sync with cookie (in case of manual changes)
-    setAuthed(document.cookie.includes("tf_auth=true"));
+    // keep in sync with server-provided prop
+    setAuthed(isAuthed);
   }, [isAuthed]);
+
+  async function handleLogout() {
+    await fetch("/api/logout", { method: "POST" });
+    setAuthed(false);
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <>
@@ -46,15 +53,7 @@ export function SiteNav({ isAuthed }: { isAuthed: boolean }) {
                 >
                   Image Generation
                 </Link>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    document.cookie = "tf_auth=; Max-Age=0; path=/";
-                    setAuthed(false);
-                    router.push("/");
-                    router.refresh();
-                  }}
-                >
+                <Button variant="outline" onClick={handleLogout}>
                   Logout
                 </Button>
               </>
