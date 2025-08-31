@@ -20,7 +20,7 @@ export function LoadingOverlay({ loading }: { loading: boolean }) {
     if (!loading) return;
     const msgInterval = setInterval(() => {
       setIndex((prev) => (prev + 1) % messages.length);
-    }, 2000);
+    }, 500);
     return () => clearInterval(msgInterval);
   }, [loading]);
 
@@ -30,7 +30,7 @@ export function LoadingOverlay({ loading }: { loading: boolean }) {
     setProgress(0);
     const interval = setInterval(() => {
       setProgress((p) => (p < 95 ? p + 2 : p)); // stop at 95% until complete
-    }, 200);
+    }, 3000);
     return () => clearInterval(interval);
   }, [loading]);
 

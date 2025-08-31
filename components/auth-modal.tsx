@@ -71,7 +71,7 @@ export function AuthModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signInData),
-        credentials: "include", // FIX: include cookies
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -99,7 +99,7 @@ export function AuthModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signUpData),
-        credentials: "include", // FIX: include cookies
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -260,7 +260,7 @@ export function AuthModal({
         <Button
           variant="outline"
           className="w-full rounded-xl hover:scale-[1.02] transition"
-          disabled // You can enable this when you implement OAuth
+          disabled
         >
           Continue with Google
         </Button>

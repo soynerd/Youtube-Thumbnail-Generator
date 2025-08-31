@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { lucia } from "./auth";
 
 export async function getUser() {
-    const cookieStore = await cookies(); // await because it returns a Promise
+    const cookieStore = await cookies();
     const sessionId = cookieStore.get(lucia.sessionCookieName)?.value ?? null;
     if (!sessionId) return null;
 

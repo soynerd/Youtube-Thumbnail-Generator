@@ -122,6 +122,7 @@ export function GeneratorUI() {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
       reader.readAsDataURL(file);
+      followUpOpen;
     });
   }
 
@@ -180,6 +181,7 @@ export function GeneratorUI() {
   async function generate() {
     try {
       setLoading(true);
+      setFollowUpOpen(false);
 
       // Use FormData to send files + metadata
       const formData = new FormData();
@@ -209,7 +211,10 @@ export function GeneratorUI() {
 
       // Set the state with the correctly formatted array of strings
       setImages(imageUrls);
-      setFollowUpOpen(false);
+      window.scrollBy({
+        top: window.innerHeight * 0.01, // 1vh
+        behavior: "smooth",
+      });
     } catch (err) {
       console.error("Generation failed", err);
     } finally {
@@ -280,9 +285,9 @@ export function GeneratorUI() {
                   multiple
                   accept="image/*"
                   onChange={(e) => onUpload(e.currentTarget.files)}
-                  className="w-full text-sm text-muted-foreground h-24"
+                  className="w-full text-sm text-muted-foreground h-24 cursor-pointer"
                 />
-                <p className="text-4xl text-muted-foreground mt-1">➕</p>
+                <p className="text-xl text-muted-foreground mt-1 ">➕</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Upload up to 4 images
                 </p>
