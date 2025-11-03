@@ -1,57 +1,44 @@
-import { lucia } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
-import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { prisma } from "@/lib/prismaClient";
+import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
-
-const signupSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
     try {
-        const body = await request.json();
-        const { name, email, password } = signupSchema.parse(body);
+        const data = await req.json();
 
-        const existingUser = await prisma.user.findUnique({ where: { email } });
-        if (existingUser) {
-            return NextResponse.json(
-                { error: "An account with this email already exists." },
-                { status: 409 }
-            );
+        if (!data.email || !data.password || !data.name) {
+            return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+        }
+        if (data.password.length < 8) {
+            return NextResponse.json({ error: "Password must be at least 8 characters long" }, { status: 400 });
         }
 
-        const hashedPassword = await hash(password, 12);
-        const userId = `user_${Date.now()}`;
+        console.log("existingUser");
+        let existingUser;
+        try {
+            existingUser = await prisma.user.findUnique({ where: { email: data.email } });
+        } catch (err) {
+            console.error("Error checking existing user:", err);
+            return NextResponse.json({ error: "Database error" }, { status: 500 });
+        }
 
-        await prisma.user.create({
-            data: { id: userId, name, email, hashed_password: hashedPassword },
+        if (existingUser) {
+            return NextResponse.json({ error: "User already exists" }, { status: 400 });
+        }
+
+        const hashed_password = await bcrypt.hash(data.password, 10);
+
+        const newUser = await prisma.user.create({
+            data: {
+                name: data.name,
+                email: data.email,
+                hashed_password,
+            },
         });
 
-        const session = await lucia.createSession(userId, {});
-        const sessionCookie = lucia.createSessionCookie(session.id);
-
-        const response = NextResponse.json({ success: true }, { status: 201 });
-        response.cookies.set(
-            sessionCookie.name,
-            sessionCookie.value,
-            sessionCookie.attributes
-        );
-
-        return response;
-
+        return NextResponse.json({ message: "User created successfully", user: newUser }, { status: 201 });
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            return NextResponse.json({ error: error.errors }, { status: 400 });
-        }
-        console.error("Signup Error:", error);
-        return NextResponse.json(
-            { error: "An unexpected error occurred." },
-            { status: 500 }
-        );
+        console.error("Sign Up Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
