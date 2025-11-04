@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { OpenAI } from "openai";
 import "dotenv/config";
 import { GoogleGenAI } from "@google/genai";
-import * as fs from "node:fs/promises";
-import path from "path";
 
 const sysPrompt = `
 You are an intellegent agent specialize in writing better prompt and its handling on image generation.
