@@ -16,6 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { prisma } from "@/lib/prismaClient";
+import bcrypt from "bcryptjs";
 
 export function AuthModal({
   open,
@@ -65,25 +68,21 @@ export function AuthModal({
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-
     try {
-      const res = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signInData),
-        credentials: "include",
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: signInData.email,
+        password: signInData.password,
+        callbackUrl: "/generate",
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to sign in.");
+      if (result?.error) {
+        setError("Invalid email or password.");
+      } else {
+        onOpenChange(false);
+        router.push("/generate");
       }
-
-      onOpenChange(false);
-      router.push("/generate");
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError("Sign in failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }
@@ -93,27 +92,58 @@ export function AuthModal({
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    if (!signUpData.name || !signUpData.email || !signUpData.password) {
+      setError("All fields are required for sign up.");
+      setIsLoading(false);
+      return;
+    }
+    if (signUpData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const res = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signUpData),
-        credentials: "include",
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create account.");
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Sign up failed. Please try again.");
+        setIsLoading(false);
+        return;
       }
 
-      onOpenChange(false);
-      router.push("/generate");
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
+      // Auto sign-in after successful sign-up
+      try {
+        const autoSignIn = await signIn("credentials", {
+          redirect: false,
+          email: signUpData.email,
+          password: signUpData.password,
+          callbackUrl: "/generate",
+        });
+        if (autoSignIn?.error) {
+          setError(
+            "Sign up succeeded but auto sign-in failed. Please sign in manually."
+          );
+        } else {
+          onOpenChange(false);
+          router.push("/generate");
+        }
+      } catch (err) {
+        setError(
+          "Sign up succeeded but auto sign-in failed. Please sign in manually."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error("Sign Up Error:", err);
+      setError("Sign up failed. Please try again.");
       setIsLoading(false);
+      return;
     }
   };
 
@@ -164,7 +194,7 @@ export function AuthModal({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="you@gmail.com"
                   className="rounded-xl"
                   value={signInData.email}
                   onChange={(e) => handleInputChange(e, "signin")}
@@ -260,7 +290,9 @@ export function AuthModal({
         <Button
           variant="outline"
           className="w-full rounded-xl hover:scale-[1.02] transition"
-          disabled
+          onClick={() =>
+            signIn("google", { redirect: false, callbackUrl: "/" })
+          }
         >
           Continue with Google
         </Button>

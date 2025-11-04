@@ -8,7 +8,7 @@ import React from "react";
 
 function InnerLayout({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
-  const isAuthed = status === "authenticated";
+  const isAuthed = status === "authenticated" ? true : false;
 
   return (
     <ThemeProvider

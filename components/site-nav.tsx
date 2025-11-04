@@ -6,10 +6,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AuthModal } from "@/components/auth-modal";
 import { useState, useEffect } from "react";
 import { ListenAuthEvent } from "@/components/listen-auth-event";
+import { signOut } from "next-auth/react";
 
 export function SiteNav({ isAuthed }: { isAuthed: boolean }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [authed, setAuthed] = useState(isAuthed);
@@ -18,13 +18,6 @@ export function SiteNav({ isAuthed }: { isAuthed: boolean }) {
     // keep in sync with server-provided prop
     setAuthed(isAuthed);
   }, [isAuthed]);
-
-  async function handleLogout() {
-    await fetch("/api/logout", { method: "POST" });
-    setAuthed(false);
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <>
@@ -53,7 +46,7 @@ export function SiteNav({ isAuthed }: { isAuthed: boolean }) {
                 >
                   Image Generation
                 </Link>
-                <Button variant="outline" onClick={handleLogout}>
+                <Button variant="outline" onClick={() => signOut()}>
                   Logout
                 </Button>
               </>
