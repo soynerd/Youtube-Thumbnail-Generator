@@ -79,8 +79,9 @@ export async function POST(request) {
           ],
         });
         const raw2 = queryResponse2.output_text.trim();
-        prompts = JSON.parse(raw);
-      } catch {
+        prompts = JSON.parse(raw2);
+      } catch (err2) {
+        console.error("❌ Retry also failed:", err2);
         return NextResponse.json(
           { message: "Invalid GPT output", raw },
           { status: 500 }

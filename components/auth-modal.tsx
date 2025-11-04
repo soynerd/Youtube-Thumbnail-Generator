@@ -1,5 +1,3 @@
-// components/AuthModal.tsx
-
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
@@ -17,8 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { prisma } from "@/lib/prismaClient";
-import bcrypt from "bcryptjs";
 
 export function AuthModal({
   open,

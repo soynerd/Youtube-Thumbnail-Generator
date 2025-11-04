@@ -13,8 +13,7 @@ Don't return anything else except for the above.
 Strictly follow the above rules.
 Ex:
 user: 'create an image for 1st episode of cooking for series chai and cooking'
-assistant: { suggestions: ["Make it more vibrant", "Focus on a cinematic shot", "Add a catchy line", "Make it look permium", "Indian style"]}
-
+assistant: { suggestion: ["Make it more vibrant", "Focus on a cinematic shot", "Add a catchy line", "Make it look permium", "Indian style"]}
 `;
 
 export async function POST(request) {
@@ -31,18 +30,6 @@ export async function POST(request) {
         });
         const suggestion = JSON.parse(response.output_text).suggestion;
 
-        // const t = {
-        //   suggestion: [
-        //     "Include a futuristic tech background 💀",
-        //     "Add bold text 'Weekly Tech News 29' 😂",
-        //     "Use vibrant blue and silver colors 🫠",
-        //     "Incorporate icons of gadgets or smartphones 👀",
-        //     "Make it look sleek and modern 💡",
-        //   ],
-        // };
-        // const response = JSON.stringify(t);
-        // const suggestion = JSON.parse(response).suggestion;
-
         return NextResponse.json({
           suggestion: suggestion,
         });
@@ -50,12 +37,6 @@ export async function POST(request) {
         console.error("Backend :: Ai-Suggestion :: error ", error);
       }
     }
-    // You can now use the 'data' variable to perform backend tasks
-    console.log("Backend received:", prompt);
-    //console.log("Backend received:", data.body);
-
-    // Example: Interacting with a database or another service
-    // const processedData = data.toUpperCase();
   } catch (error) {
     console.error("Error in API route:", error);
     return NextResponse.json(
