@@ -278,6 +278,63 @@ export function GeneratorUI() {
   return (
     <div className="grid gap-8">
       {/* Input section */}
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {images.map((src, i) => (
+            <div
+              key={`${src}-${i}`}
+              className="group relative border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition"
+            >
+              <Checkbox
+                checked={!!selected[src]}
+                onCheckedChange={(v) =>
+                  setSelected((s) => ({ ...s, [src]: !!v }))
+                }
+                className="absolute left-3 top-3 z-10 bg-background/90 rounded-sm h-5 w-5"
+                aria-label={`Select image ${i + 1}`}
+              />
+              <Image
+                src={src && src.trim() !== "" ? src : "/placeholder.svg"}
+                alt={`Generated ${i}`}
+                width={640}
+                height={360}
+                className="w-full h-auto transition group-hover:scale-[1.02]"
+              />
+              <TooltipProvider>
+                <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                  <IconButton
+                    tooltip="Preview"
+                    onClick={() => setPreviewImage(src)}
+                  >
+                    <Eye className="size-4" />
+                  </IconButton>
+                  <IconButton
+                    tooltip="Regenerate (reuse as reference)"
+                    onClick={() => {
+                      setRefs((prevRefs) => [src, ...prevRefs].slice(0, 4));
+                    }}
+                  >
+                    <RefreshCw className="size-4" />
+                  </IconButton>
+                  <IconButton
+                    tooltip="Edit / Follow-up"
+                    onClick={() => alert("Paid Plan Sir 😁")}
+                  >
+                    <Pencil className="size-4" />
+                  </IconButton>
+                  <IconButton
+                    tooltip="Copy To Clipboard"
+                    onClick={() => copyToClipboard(src)}
+                  >
+                    <Clipboard className="size-4" />
+                  </IconButton>
+                </div>
+              </TooltipProvider>
+            </div>
+          ))}
+        </div>
+      )}
+
       <Card className="rounded-2xl shadow-sm border-muted">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">
@@ -386,62 +443,6 @@ export function GeneratorUI() {
       )}
 
       {/* Outputs */}
-      {images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {images.map((src, i) => (
-            <div
-              key={`${src}-${i}`}
-              className="group relative border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition"
-            >
-              <Checkbox
-                checked={!!selected[src]}
-                onCheckedChange={(v) =>
-                  setSelected((s) => ({ ...s, [src]: !!v }))
-                }
-                className="absolute left-3 top-3 z-10 bg-background/90 rounded-sm h-5 w-5"
-                aria-label={`Select image ${i + 1}`}
-              />
-              <Image
-                src={src && src.trim() !== "" ? src : "/placeholder.svg"}
-                alt={`Generated ${i}`}
-                width={640}
-                height={360}
-                className="w-full h-auto transition group-hover:scale-[1.02]"
-              />
-              <TooltipProvider>
-                <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition">
-                  <IconButton
-                    tooltip="Preview"
-                    onClick={() => setPreviewImage(src)}
-                  >
-                    <Eye className="size-4" />
-                  </IconButton>
-                  <IconButton
-                    tooltip="Regenerate (reuse as reference)"
-                    onClick={() => {
-                      setRefs((prevRefs) => [src, ...prevRefs].slice(0, 4));
-                    }}
-                  >
-                    <RefreshCw className="size-4" />
-                  </IconButton>
-                  <IconButton
-                    tooltip="Edit / Follow-up"
-                    onClick={() => alert("Paid Plan Sir 😁")}
-                  >
-                    <Pencil className="size-4" />
-                  </IconButton>
-                  <IconButton
-                    tooltip="Copy To Clipboard"
-                    onClick={() => copyToClipboard(src)}
-                  >
-                    <Clipboard className="size-4" />
-                  </IconButton>
-                </div>
-              </TooltipProvider>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Wizard */}
       <Dialog open={wizardOpen} onOpenChange={setWizardOpen}>

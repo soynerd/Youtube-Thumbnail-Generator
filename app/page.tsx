@@ -2,7 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type VideoData = {
   i: number;
@@ -51,6 +53,15 @@ const imageData: VideoData[] = [
 ];
 
 export default function LandingPage() {
+  const { status } = useSession();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    if (status === "authenticated") {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, [status]);
   return (
     <main className="bg-background text-foreground">
       {/* Hero */}
@@ -66,34 +77,34 @@ export default function LandingPage() {
           upload an image — ThumbForge makes your ideas pop.
         </p>
         <div className="flex justify-center gap-4">
-          <Link href="#" className="sr-only">
-            Hidden for a11y
-          </Link>
+          {!isLoggedIn && (
+            <div>
+              <Button
+                className="bg-gradient-to-r from-blue-600 to-teal-500 text-white px-8 py-3 rounded-xl text-lg shadow-lg hover:scale-105 transition"
+                onClick={() => {
+                  const evt = new CustomEvent("open-auth-modal", {
+                    detail: { mode: "signin" },
+                  });
+                  window.dispatchEvent(evt);
+                }}
+              >
+                Sign In 🚀
+              </Button>
 
-          <Button
-            className="bg-gradient-to-r from-blue-600 to-teal-500 text-white px-8 py-3 rounded-xl text-lg shadow-lg hover:scale-105 transition"
-            onClick={() => {
-              const evt = new CustomEvent("open-auth-modal", {
-                detail: { mode: "signin" },
-              });
-              window.dispatchEvent(evt);
-            }}
-          >
-            Sign In 🚀
-          </Button>
-
-          <Button
-            variant="outline"
-            className="px-8 py-3 rounded-xl text-lg hover:scale-105 transition"
-            onClick={() => {
-              const evt = new CustomEvent("open-auth-modal", {
-                detail: { mode: "signup" },
-              });
-              window.dispatchEvent(evt);
-            }}
-          >
-            Sign Up
-          </Button>
+              <Button
+                variant="outline"
+                className="px-8 py-3 rounded-xl text-lg hover:scale-105 transition"
+                onClick={() => {
+                  const evt = new CustomEvent("open-auth-modal", {
+                    detail: { mode: "signup" },
+                  });
+                  window.dispatchEvent(evt);
+                }}
+              >
+                Sign Up
+              </Button>
+            </div>
+          )}
         </div>
         <div className="flex justify-center gap-6 text-sm text-muted-foreground mt-6">
           <span>🎨 Few-click editing</span>

@@ -12,7 +12,7 @@ export function UpgradeCard() {
         {/* Subtle gradient border effect */}
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600/10 via-teal-500/10 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
-        <CardContent className="relative px-6 py-2 flex items-center justify-between">
+        <CardContent className="relative px-6 flex items-center justify-between">
           <div>
             <p className="text-base font-medium">
               Unlock more with <span className="text-blue-600">Pro</span>
